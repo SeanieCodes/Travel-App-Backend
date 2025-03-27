@@ -21,10 +21,12 @@ mongoose.connect(process.env.MONGODB_URI)
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const travelPlanRoutes = require('./routes/travelPlans');
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/travel-plans', travelPlanRoutes);
 
 // Root route
 app.get('/', (req, res) => {
