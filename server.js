@@ -44,11 +44,13 @@ mongoose.connect(process.env.MONGODB_URI)
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const travelPlanRoutes = require('./routes/travelPlans');
+const exportRoutes = require('./routes/export');
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/travel-plans', travelPlanRoutes);
+app.use('/api/export', exportRoutes);
 
 // API Proxy route for handling external API requests
 app.use('/api/proxy', async (req, res) => {
