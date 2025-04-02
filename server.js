@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const fetch = require('node-fetch');
+const passport = require('passport');
+const session = require('express-session');
 
 // Load environment variables
 dotenv.config();
@@ -10,9 +12,28 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
+// Configure Passport
+require('./config/passport')(passport);
+
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
+
 app.use(express.json());
+
+// Session middleware (required for Passport)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'keyboard cat',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)

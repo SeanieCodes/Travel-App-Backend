@@ -4,26 +4,40 @@ const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: [true, 'Username is required'],
     unique: true,
+    sparse: true,
     trim: true,
     minlength: 3
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
-    minlength: 6
+    minlength: 6,
+    select: false
   },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  email: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true,
+    lowercase: true
+  },
+  displayName: String,
+  profilePicture: String,
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Pre-save hook to hash password
+// Pre-save hook to hash password (only for traditional signup)
 userSchema.pre('save', async function(next) {
-  // Only hash the password if it's modified (or new)
-  if (!this.isModified('password')) return next();
+  // Only hash the password if it's modified (or new) and exists
+  if (!this.isModified('password') || !this.password) return next();
   
   try {
     // Generate a salt
@@ -37,8 +51,9 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Method to compare password
+// Method to compare password (for traditional login)
 userSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 
