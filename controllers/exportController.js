@@ -60,11 +60,14 @@ exports.generateTripPDF = async (req, res) => {
     
     // Generate PDF
     const pdfBuffer = await pdfService.generateTripPDF(user, trip);
-    
-    // Set response headers for PDF download
+
+    // Create a safe filename - replace ALL non-alphanumeric chars with underscores
+    const safeFilename = `alcove_trip_${trip.cityName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}.pdf`;
+
+    // Set response headers for PDF download (with quotes around filename)
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=alcove_trip_${trip.cityName.replace(/\s+/g, '_').toLowerCase()}.pdf`);
-    
+    res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"`);
+
     // Send PDF as response
     res.send(pdfBuffer);
   } catch (error) {
