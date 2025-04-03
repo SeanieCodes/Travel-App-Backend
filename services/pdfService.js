@@ -19,43 +19,50 @@ exports.generateTripPDF = async (userData, trip) => {
           <style>
             body {
               font-family: Arial, sans-serif;
-              color: #333;
+              color: #ffffff;
               line-height: 1.6;
               margin: 0;
               padding: 20px;
+              background-color: #000000;
             }
             .header {
               text-align: center;
               margin-bottom: 30px;
               padding-bottom: 20px;
-              border-bottom: 2px solid #f7aad0;
+              border-bottom: 2px solid #ff69b4;
             }
             h1 {
-              color: #db0589;
+              color: #ff69b4;
               font-size: 28px;
               margin-bottom: 10px;
+              font-weight: bold;
             }
             h2 {
-              color: #33658A;
+              color: #ff69b4;
               font-size: 22px;
               margin-top: 20px;
               margin-bottom: 10px;
+              font-weight: bold;
             }
             h3 {
-              color: #30D5C8;
+              color: #ff69b4;
               font-size: 18px;
               margin-top: 15px;
               margin-bottom: 5px;
               padding: 8px;
-              background-color: #f1f1f1;
+              background-color: #111111;
               border-radius: 4px;
+              font-weight: bold;
+            }
+            p {
+              color: #ffffff;
             }
             .trip-details {
               margin-bottom: 30px;
               padding: 15px;
-              background-color: #f9f9f9;
+              background-color: #111111;
               border-radius: 5px;
-              border-left: 4px solid #f7aad0;
+              border-left: 4px solid #ff69b4;
             }
             .activities {
               margin-left: 20px;
@@ -63,11 +70,12 @@ exports.generateTripPDF = async (userData, trip) => {
             .activity {
               margin-bottom: 10px;
               padding: 10px;
-              border-bottom: 1px solid #eee;
+              border-bottom: 1px solid #333333;
+              color: #ffffff;
             }
             .time {
               font-weight: bold;
-              color: #33658A;
+              color: #ff69b4;
               display: inline-block;
               width: 100px;
             }
@@ -75,14 +83,17 @@ exports.generateTripPDF = async (userData, trip) => {
               text-align: center;
               margin-top: 50px;
               padding-top: 20px;
-              border-top: 1px solid #eee;
+              border-top: 1px solid #333333;
               font-size: 12px;
-              color: #999;
+              color: #cccccc;
             }
             .no-activities {
               font-style: italic;
-              color: #777;
+              color: #cccccc;
               margin: 10px 0 10px 20px;
+            }
+            strong {
+              color: #ffffff;
             }
           </style>
         </head>
@@ -128,8 +139,12 @@ exports.generateTripPDF = async (userData, trip) => {
       </html>
     `;
     
-    // Generate PDF from HTML
-    const options = { format: 'A4' };
+    // Generate PDF from HTML with better color rendering
+    const options = { 
+      format: 'A4',
+      printBackground: true,
+      preferCSSPageSize: true
+    };
     const file = { content: htmlContent };
     
     const pdfBuffer = await htmlPdf.generatePdf(file, options);
