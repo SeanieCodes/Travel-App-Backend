@@ -1,18 +1,16 @@
 const nodemailer = require('nodemailer');
 const htmlToText = require('html-to-text');
 
-// Create nodemailer transporter using Gmail + App Password
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,           // smtp.gmail.com
-  port: process.env.EMAIL_PORT,           // 465
-  secure: process.env.EMAIL_SECURE === 'true',  // true
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE === 'true',
   auth: {
-    user: process.env.EMAIL_USER,         // your Gmail address
-    pass: process.env.EMAIL_PASSWORD      // your Gmail App Password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD
   }
 });
 
-// Send trip itinerary email with PDF attachment
 exports.sendTripEmail = async (userData, tripName, pdfBuffer) => {
   try {
     const emailHtml = `
