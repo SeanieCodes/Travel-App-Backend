@@ -1,14 +1,14 @@
 const nodemailer = require('nodemailer');
 const htmlToText = require('html-to-text');
 
-// Create nodemailer transporter
+// Create nodemailer transporter using Gmail + App Password
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: process.env.EMAIL_SECURE === 'true',
+  host: process.env.EMAIL_HOST,           // smtp.gmail.com
+  port: process.env.EMAIL_PORT,           // 465
+  secure: process.env.EMAIL_SECURE === 'true',  // true
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
+    user: process.env.EMAIL_USER,         // your Gmail address
+    pass: process.env.EMAIL_PASSWORD      // your Gmail App Password
   }
 });
 
@@ -38,13 +38,11 @@ exports.sendTripEmail = async (userData, tripName, pdfBuffer) => {
         </div>
       </div>
     `;
-    
-    // Convert HTML to text for email clients that don't support HTML
+
     const emailText = htmlToText.convert(emailHtml, {
       wordwrap: 130
     });
-    
-    // Send email with PDF attachment
+
     const info = await transporter.sendMail({
       from: `"Alcove Travel" <${process.env.EMAIL_FROM}>`,
       to: userData.email,
@@ -59,7 +57,7 @@ exports.sendTripEmail = async (userData, tripName, pdfBuffer) => {
         }
       ]
     });
-    
+
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
