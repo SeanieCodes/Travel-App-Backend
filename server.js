@@ -3,14 +3,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const fetch = require('node-fetch');
-const passport = require('passport');
-const session = require('express-session');
 
 dotenv.config();
 
 const app = express();
-
-require('./config/passport')(passport);
 
 app.use(cors({
   origin: process.env.FRONTEND_URL,
@@ -18,16 +14,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'keyboard cat',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
