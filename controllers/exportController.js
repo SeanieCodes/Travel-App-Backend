@@ -3,9 +3,7 @@ const emailService = require('../services/emailService');
 const User = require('../models/User');
 const TravelPlan = require('../models/TravelPlan');
 
-// Helper function to prepare trip data
 const prepareTripData = async (userId, tripDates) => {
-  // Get user and travel plan data
   const user = await User.findById(userId);
   const travelPlan = await TravelPlan.findOne({ userId });
   
@@ -17,7 +15,6 @@ const prepareTripData = async (userId, tripDates) => {
     throw new Error('No travel plans found');
   }
   
-  // Convert arrays to maps for easier lookup
   const cityDatesMap = {};
   travelPlan.cityDates.forEach(item => {
     cityDatesMap[item.date] = item.cityName;
@@ -28,13 +25,11 @@ const prepareTripData = async (userId, tripDates) => {
     activitiesMap[item.date] = item.activities;
   });
   
-  // Extract trip info
   const tripActivities = {};
   tripDates.forEach(date => {
     tripActivities[date] = activitiesMap[date] || [];
   });
   
-  // Get city name (should be the same for all dates in the trip)
   const cityName = cityDatesMap[tripDates[0]];
   
   return {
@@ -47,7 +42,6 @@ const prepareTripData = async (userId, tripDates) => {
   };
 };
 
-// Generate and download PDF for a specific trip
 exports.generateTripPDF = async (req, res) => {
   try {
     const { dates } = req.body;
@@ -58,17 +52,13 @@ exports.generateTripPDF = async (req, res) => {
     
     const { user, trip } = await prepareTripData(req.user.id, dates);
     
-    // Generate PDF
     const pdfBuffer = await pdfService.generateTripPDF(user, trip);
 
-    // Create a safe filename - replace ALL non-alphanumeric chars with underscores
     const safeFilename = `alcove_trip_${trip.cityName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}.pdf`;
 
-    // Set response headers for PDF download (with quotes around filename)
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"`);
 
-    // Send PDF as response
     res.send(pdfBuffer);
   } catch (error) {
     console.error('Error exporting trip PDF:', error);
@@ -76,7 +66,6 @@ exports.generateTripPDF = async (req, res) => {
   }
 };
 
-// Generate PDF and send via email for a specific trip
 exports.emailTripPDF = async (req, res) => {
   try {
     const { dates } = req.body;
@@ -91,10 +80,8 @@ exports.emailTripPDF = async (req, res) => {
       return res.status(400).json({ message: 'User email is required for sending itinerary' });
     }
     
-    // Generate PDF
     const pdfBuffer = await pdfService.generateTripPDF(user, trip);
     
-    // Send email with PDF attachment
     await emailService.sendTripEmail(user, trip.cityName, pdfBuffer);
     
     res.json({ message: `Trip itinerary for ${trip.cityName} has been sent to your email` });

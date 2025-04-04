@@ -3,13 +3,11 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const TravelPlan = require('../models/TravelPlan');
 
-// Get user's travel plan
 router.get('/', auth, async (req, res) => {
   try {
     let travelPlan = await TravelPlan.findOne({ userId: req.user.id });
     
     if (!travelPlan) {
-      // Create empty travel plan if none exists
       travelPlan = new TravelPlan({
         userId: req.user.id,
         cityDates: [],
@@ -24,12 +22,10 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// Update user's travel plan
 router.put('/', auth, async (req, res) => {
   try {
     const { cityDates, dateActivities } = req.body;
     
-    // Find and update travel plan
     let travelPlan = await TravelPlan.findOne({ userId: req.user.id });
     
     if (!travelPlan) {
@@ -59,14 +55,12 @@ router.delete('/dates', auth, async (req, res) => {
         return res.status(400).json({ message: 'Valid dates array is required' });
       }
       
-      // Find the user's travel plan
       let travelPlan = await TravelPlan.findOne({ userId: req.user.id });
       
       if (!travelPlan) {
         return res.status(404).json({ message: 'No travel plan found' });
       }
       
-      // Filter out the dates to be deleted
       travelPlan.cityDates = travelPlan.cityDates.filter(cityDate => 
         !dates.includes(cityDate.date)
       );
@@ -88,8 +82,6 @@ router.delete('/dates', auth, async (req, res) => {
     }
   });
 
-// Add this route to travelPlans.js
-
 router.post('/shift', auth, async (req, res) => {
     try {
       const { dateMapping } = req.body;
@@ -98,55 +90,43 @@ router.post('/shift', auth, async (req, res) => {
         return res.status(400).json({ message: 'Valid dateMapping array is required' });
       }
       
-      // Find the user's travel plan
       let travelPlan = await TravelPlan.findOne({ userId: req.user.id });
       
       if (!travelPlan) {
         return res.status(404).json({ message: 'No travel plan found' });
       }
       
-      // Create a mapping of old dates to new dates
       const dateMap = dateMapping.reduce((map, item) => {
         map[item.oldDate] = item.newDate;
         return map;
       }, {});
       
-      // Create arrays for the new cityDates and dateActivities
       const newCityDates = [];
       const newDateActivities = [];
       
-      // Shift cityDates
       travelPlan.cityDates.forEach(cityDate => {
         if (dateMap[cityDate.date]) {
-          // This date is being shifted, add with new date
           newCityDates.push({
             date: dateMap[cityDate.date],
             cityId: cityDate.cityId,
             cityName: cityDate.cityName
           });
         } else if (!Object.values(dateMap).includes(cityDate.date)) {
-          // This date is not being shifted and is not a destination date
           newCityDates.push(cityDate);
         }
-        // Skip if this date would be overwritten by a shift
       });
       
-      // Shift dateActivities
       travelPlan.dateActivities.forEach(dateActivity => {
         if (dateMap[dateActivity.date]) {
-          // This date is being shifted, add with new date
           newDateActivities.push({
             date: dateMap[dateActivity.date],
             activities: dateActivity.activities
           });
         } else if (!Object.values(dateMap).includes(dateActivity.date)) {
-          // This date is not being shifted and is not a destination date
           newDateActivities.push(dateActivity);
         }
-        // Skip if this date would be overwritten by a shift
       });
       
-      // Update the travel plan
       travelPlan.cityDates = newCityDates;
       travelPlan.dateActivities = newDateActivities;
       travelPlan.updatedAt = Date.now();

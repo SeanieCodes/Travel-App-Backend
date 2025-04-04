@@ -6,16 +6,12 @@ const fetch = require('node-fetch');
 const passport = require('passport');
 const session = require('express-session');
 
-// Load environment variables
 dotenv.config();
 
-// Initialize Express app
 const app = express();
 
-// Configure Passport
 require('./config/passport')(passport);
 
-// Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
@@ -23,7 +19,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// Session middleware (required for Passport)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'keyboard cat',
   resave: false,
@@ -31,32 +26,27 @@ app.use(session({
   cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
-// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000 // increase to 30 seconds
+    serverSelectionTimeoutMS: 30000
   })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB', err));  
 
-// Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const travelPlanRoutes = require('./routes/travelPlans');
 const exportRoutes = require('./routes/export');
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/travel-plans', travelPlanRoutes);
 app.use('/api/export', exportRoutes);
 
-// API Proxy route for handling external API requests
 app.use('/api/proxy', async (req, res) => {
   try {
     const { url } = req.query;
@@ -64,12 +54,9 @@ app.use('/api/proxy', async (req, res) => {
     if (!url) {
       return res.status(400).json({ message: 'URL parameter is required' });
     }
-    
-    console.log(`Proxy request for: ${url}`);
-    
+
     const response = await fetch(url);
     
-    // Check if the response is valid
     if (!response.ok) {
       console.error(`Proxy error: API responded with status ${response.status}`);
       return res.status(response.status).json({ 
@@ -78,7 +65,6 @@ app.use('/api/proxy', async (req, res) => {
       });
     }
     
-    // Make sure we're getting JSON back before parsing
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       console.error(`Proxy error: Expected JSON but got ${contentType}`);
@@ -98,15 +84,12 @@ app.use('/api/proxy', async (req, res) => {
   }
 });
 
-// Root route
 app.get('/', (req, res) => {
   res.send('Welcome to TravelApp API!');
 });
 
-// Define port
 const PORT = process.env.PORT || 5001;
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

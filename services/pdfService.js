@@ -1,18 +1,14 @@
 const htmlPdf = require('html-pdf-node');
 
-// Function to generate PDF from a specific trip
 exports.generateTripPDF = async (userData, trip) => {
   try {
-    // Extract trip details
     const { cityName, dates, activities } = trip;
     
-    // Format the dates for display
     const formattedDates = dates.map(date => formatDate(date));
     const dateRange = dates.length > 1 
       ? `${formattedDates[0]} - ${formattedDates[dates.length-1]}` 
       : formattedDates[0];
     
-    // Generate HTML content for the PDF
     const htmlContent = `
       <html>
         <head>
@@ -156,7 +152,6 @@ exports.generateTripPDF = async (userData, trip) => {
   }
 };
 
-// Helper function to format date
 function formatDate(dateStr) {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', { 

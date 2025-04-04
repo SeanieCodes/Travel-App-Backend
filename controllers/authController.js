@@ -2,10 +2,8 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 
-// Create OAuth2 client using the Google Client ID from your environment variables
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Generate JWT token
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email || user.username },
@@ -14,12 +12,10 @@ const generateToken = (user) => {
   );
 };
 
-// Login user with username/password
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
     
-    // Find user by username or email
     const user = await User.findOne({ 
       $or: [{ username }, { email: username }] 
     }).select('+password');
@@ -28,16 +24,13 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
     
-    // Check if password is correct
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
     
-    // Generate JWT token
     const token = generateToken(user);
     
-    // Return token and user info
     res.json({
       message: 'Login successful',
       token,
@@ -54,7 +47,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// Verify Google token and create/update user
 exports.verifyGoogleToken = async (req, res) => {
   try {
     const { credential } = req.body;
@@ -63,7 +55,6 @@ exports.verifyGoogleToken = async (req, res) => {
       return res.status(400).json({ message: 'Google token is required' });
     }
     
-    // Verify the Google token using the correctly named googleClient
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID
@@ -82,20 +73,16 @@ exports.verifyGoogleToken = async (req, res) => {
       picture: profilePicture 
     } = payload;
     
-    // Check if user exists with this Google ID
     let user = await User.findOne({ googleId });
     
     if (!user) {
-      // If not, check if a user exists with the same email
       user = await User.findOne({ email });
       
       if (user) {
-        // Link Google account to the existing user
         user.googleId = googleId;
         user.profilePicture = profilePicture;
         await user.save();
       } else {
-        // Create a new user
         user = new User({
           googleId,
           email,
@@ -107,10 +94,8 @@ exports.verifyGoogleToken = async (req, res) => {
       }
     }
     
-    // Generate JWT token for the user
     const token = generateToken(user);
     
-    // Return token and user info
     res.json({
       message: 'Google authentication successful',
       token,
@@ -128,7 +113,6 @@ exports.verifyGoogleToken = async (req, res) => {
   }
 };
 
-// Get current user
 exports.getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
