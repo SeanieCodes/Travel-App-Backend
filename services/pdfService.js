@@ -135,7 +135,6 @@ exports.generateTripPDF = async (userData, trip) => {
       </html>
     `;
     
-    // Generate PDF from HTML with better color rendering
     const options = { 
       format: 'A4',
       printBackground: true,
