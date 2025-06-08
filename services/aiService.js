@@ -11,9 +11,9 @@ exports.generateItinerary = async (city, dates, preferences = []) => {
 
   try {
     const response = await axios.post(
-      'https://api.groq.com/v1/chat/completions',     
+      'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'mixtral-8x7b-32768',                  
+        model: 'mixtral-8x7b-32768',
         messages: [
           { role: 'system', content: 'You are a helpful travel itinerary planner.' },
           { role: 'user',   content: prompt }
@@ -26,11 +26,11 @@ exports.generateItinerary = async (city, dates, preferences = []) => {
         }
       }
     );
-
     return response.data.choices[0].message.content;
   } catch (error) {
-    console.error('Groq API error:', 
-      error.response?.status, 
+    console.error(
+      'Groq API error:',
+      error.response?.status,
       error.response?.data || error.message
     );
     throw new Error('Failed to generate itinerary suggestions');
