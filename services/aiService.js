@@ -1,3 +1,4 @@
+// travelapp-backend/services/aiService.js
 const axios = require('axios');
 
 exports.generateItinerary = async (city, dates, preferences = []) => {
@@ -13,7 +14,7 @@ exports.generateItinerary = async (city, dates, preferences = []) => {
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'mixtral-8x7b-32768',
+        model: 'mistral-saba-24b',            // ← updated model
         messages: [
           { role: 'system', content: 'You are a helpful travel itinerary planner.' },
           { role: 'user',   content: prompt }
@@ -26,6 +27,7 @@ exports.generateItinerary = async (city, dates, preferences = []) => {
         }
       }
     );
+
     return response.data.choices[0].message.content;
   } catch (error) {
     console.error(
