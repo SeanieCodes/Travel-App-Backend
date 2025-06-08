@@ -27,11 +27,13 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const travelPlanRoutes = require('./routes/travelPlans');
 const exportRoutes = require('./routes/export');
+const aiRoutes = require('./routes/aiRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/travel-plans', travelPlanRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.use('/api/proxy', async (req, res) => {
   try {
